@@ -1,0 +1,61 @@
+#!/bin/bash
+
+make clean
+make
+
+# part2
+path="a2-images/part1_images"
+
+declare -a n_arr
+declare -a n_val
+declare -a n_temp
+ct=-1
+i=0
+for n in $path/*
+do
+    nsf=$( echo $n | cut -d '/' -f 3)
+    ns=$( echo $nsf | cut -d '_' -f 1)
+    nsv=$( echo $( echo $nsf | cut -d '_' -f 2) | cut -d '.' -f 1)
+    format=$( echo $( echo $nsf | cut -d '_' -f 2) | cut -d '.' -f 2)
+    chk=0
+    for j in ${n_arr[*]}
+    do
+	if [ "$j" == "$ns" ]
+        then
+	    ((i++))
+	    n_temp[$i]=$nsv
+	    ((chk++))
+	    break
+	fi
+    done
+    if [ "$chk" -eq 0 ]
+    then
+	if [ "$ct" -ge 0 ] 
+	then
+	    pos=$((RANDOM % ${#n_temp[*]}))
+	    n_val[$ct]=${n_arr[$ct]}"_"${n_temp[$pos]}"."$format" "
+	fi
+	((ct++))
+	n_arr[$ct]=$ns
+	i=0
+	unset n_temp
+	n_temp[$i]=$nsv 
+    fi
+done
+pos=$((RANDOM % ${#n_temp[*]}))
+n_val[$ct]=$ns"_"${n_temp[pos]}"."$format
+
+#echo ${n_arr[*]}
+#echo ${n_val[*]}
+
+for i in ${n_val[*]}
+do
+    declare -a curr
+    j=0
+    for n in $path/*
+    do
+        curr[$j]=$n
+	((j++))
+    done
+    ./a2 part2 $path/$i $( echo ${curr[*]} )
+done
